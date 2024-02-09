@@ -75,6 +75,14 @@ pnpm install --save-dev eslint-config-prettier eslint-plugin-prettier
 
 After this, `eslint` will display any styling errors from `prettier `for us to resolve before any commit.
 
+Finally, we can add `prettier` to scripts inside the `package.json` file:
+
+```json
+"scripts": {
+  "format": "prettier --write \"src/**/*.{ts,tsx,json,css}\""
+}
+```
+
 Edit `/lib/metadata.ts` to your needs:
 
 ```ts
