@@ -100,3 +100,99 @@ export default siteMetadata
 This metadata are imported in `/lib/utils.ts` and used in `src/app/layout.tsx`.
 
 `MaxWidthWrapper.tsx` is a simple wrapper for the main content to take up full width on screen and can be reused in other components. It is imported in `src/app/page.tsx` by default.
+
+```authjs drizzle adapter + turso
+pnpm add drizzle-orm @auth/drizzle-adapter @libsql/client
+pnpm add drizzle-kit --save-dev
+```
+
+Sqlite schema `src/lib/db/schema.ts`
+
+```ts
+import { integer, sqliteTable, text, primaryKey } from 'drizzle-orm/sqlite-core'
+import type { AdapterAccount } from '@auth/core/adapters'
+
+export const users = sqliteTable('user', {
+  id: text('id').notNull().primaryKey(),
+  name: text('name'),
+  email: text('email').notNull(),
+  emailVerified: integer('emailVerified', { mode: 'timestamp_ms' }),
+  image: text('image'),
+})
+
+export const accounts = sqliteTable(
+  'account',
+  {
+    userId: text('userId')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    type: text('type').$type<AdapterAccount['type']>().notNull(),
+    provider: text('provider').notNull(),
+    providerAccountId: text('providerAccountId').notNull(),
+    refresh_token: text('refresh_token'),
+    access_token: text('access_token'),
+    expires_at: integer('expires_at'),
+    token_type: text('token_type'),
+    scope: text('scope'),
+    id_token: text('id_token'),
+    session_state: text('session_state'),
+  },
+  (account) => ({
+    compoundKey: primaryKey({
+      columns: [account.provider, account.providerAccountId],
+    }),
+  }),
+)
+
+export const sessions = sqliteTable('session', {
+  sessionToken: text('sessionToken').notNull().primaryKey(),
+  userId: text('userId')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  expires: integer('expires', { mode: 'timestamp_ms' }).notNull(),
+})
+
+export const verificationTokens = sqliteTable(
+  'verificationToken',
+  {
+    identifier: text('identifier').notNull(),
+    token: text('token').notNull(),
+    expires: integer('expires', { mode: 'timestamp_ms' }).notNull(),
+  },
+  (vt) => ({
+    compoundKey: primaryKey({ columns: [vt.identifier, vt.token] }),
+  }),
+)
+```
+
+Create auth token with `turso cli`
+
+```bash
+turso db show <database-name>
+turso db tokens create <database-name> --expiration none
+```
+
+Add `next-auth`
+
+```bash
+pnpm add next-auth@beta @auth/core
+```
+
+`src/app/api/auth/[...nextauth]/route.ts`
+
+```ts
+import NextAuth from 'next-auth'
+import GoogleProvider from 'next-auth/providers/google'
+import { DrizzleAdapter } from '@auth/drizzle-adapter'
+import { db } from './schema'
+
+export default NextAuth({
+  adapter: DrizzleAdapter(db),
+  providers: [
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    }),
+  ],
+})
+```

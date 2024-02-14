@@ -1,0 +1,13 @@
+{
+  "version": "5",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1707840413376,
+      "tag": "0000_crazy_aaron_stack",
+      "breakpoints": true
+    }
+  ]
+}
