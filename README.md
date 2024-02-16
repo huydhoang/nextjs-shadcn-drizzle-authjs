@@ -189,8 +189,12 @@ import { handlers } from '@/auth'
 export const { GET, POST } = handlers
 ```
 
-## Add a button
+## Add a button with shadcn-ui
 
 ```bash
 pnpm dlx shadcn-ui@latest add button
 ```
+
+Then conveniently use its buttonVariants to style links on the home page.
+
+Note: Currently `middleware` is throw an error when logging in using the same email address, probably because the cookie is not properly cleaned after signing out. The workaround is adding `allowDangerousEmailAccountLinking: true` to `auth.ts` GoogleProvider. While not ideal, it finally worked.
