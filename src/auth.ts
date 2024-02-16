@@ -8,6 +8,7 @@ export const authConfig = {
     GoogleProvider({
       clientId: process.env.AUTH_GOOGLE_ID,
       clientSecret: process.env.AUTH_GOOGLE_SECRET,
+      allowDangerousEmailAccountLinking: true,
     }),
   ],
   adapter: DrizzleAdapter(db),
@@ -18,7 +19,7 @@ export const authConfig = {
     },
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user
-      const paths = ['/me', '/create']
+      const paths = ['/profile']
       const isProtected = paths.some((path) =>
         nextUrl.pathname.startsWith(path),
       )

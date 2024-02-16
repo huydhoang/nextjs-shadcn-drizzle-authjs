@@ -1,7 +1,31 @@
 This template can be reproduced from scratch by following these steps:
 
+## Enable `pnpm` with `corepack`:
+
+Make sure `Node.js` v16.9 or later was installed. Then you can simply enable `corepack` with:
+
 ```bash
-npx create-next-app@latest nextjs-shadcn-starter
+corepack enable
+```
+
+Verify that `pnpm` is available:
+
+```bash
+pnpm -v
+```
+
+Other than that, you can install `pnpm` globally with:
+
+```bash
+npm install -g pnpm
+```
+
+## Create Next.js app:
+
+Select `Yes` for the `src` directory and `App Router`:
+
+```bash
+pnpx create-next-app@latest nextjs-shadcn-drizzle-authjs
 
 √ Would you like to use TypeScript? ... No / Yes
 √ Would you like to use ESLint? ... No / Yes
@@ -10,7 +34,7 @@ npx create-next-app@latest nextjs-shadcn-starter
 √ Would you like to use App Router? (recommended) ... No / Yes
 √ Would you like to customize the default import alias (@/*)? ... No / Yes
 
-npx shadcn-ui@latest init
+pnpx shadcn-ui@latest init
 
 √ Would you like to use TypeScript (recommended)? no / yes
 √ Which style would you like to use? › Default
@@ -27,18 +51,10 @@ npx shadcn-ui@latest init
 
 `shadcn-ui` will install some deps and create `/lib/utils.ts` and `/components` folder.
 
-Switch to `pnpm`:
+## Add `prettier`:
 
 ```bash
-rm -rf node_modules package-lock.json
-pnpm i
-
-```
-
-Add `prettier`:
-
-```bash
-pnpm install --save-dev prettier prettier-plugin-tailwindcss
+pnpm add --save-dev prettier prettier-plugin-tailwindcss
 ```
 
 `.prettierrc.json`
@@ -52,13 +68,13 @@ pnpm install --save-dev prettier prettier-plugin-tailwindcss
 }
 ```
 
-Integrate `prettier` with `eslint`:
+## Integrate `prettier` with `eslint`:
 
 - `eslint-config-prettier` are pre-made configs that turn off rules that conflict or are unnecessary with Prettier
 - `eslint-plugin-prettier` show Prettier results as part of eslint
 
 ```bash
-pnpm install --save-dev eslint-config-prettier eslint-plugin-prettier
+pnpm add --save-dev eslint-config-prettier eslint-plugin-prettier
 ```
 
 `.eslintrc.json`:
@@ -73,9 +89,9 @@ pnpm install --save-dev eslint-config-prettier eslint-plugin-prettier
 }
 ```
 
-After this, `eslint` will display any styling errors from `prettier `for us to resolve before any commit.
+After this, `eslint` will display any styling errors from `prettier ` alongside TypeScript errors.
 
-Finally, we can add `prettier` to scripts inside the `package.json` file:
+Finally, we can add `prettier` to `scripts` inside the `package.json` file:
 
 ```json
 "scripts": {
@@ -83,25 +99,11 @@ Finally, we can add `prettier` to scripts inside the `package.json` file:
 }
 ```
 
-Edit `/lib/metadata.ts` to your needs:
+## Add `drizzle-orm` for database:
 
-```ts
-const siteMetadata = {
-  title: 'MyApp - the marketplace for local communities',
-  description:
-    'MyApp is a marketplace for high-quality local goods and services.',
-  creator: '@huydhoang',
-  url: 'https://example.com',
-}
+authjs drizzle adapter + turso
 
-export default siteMetadata
-```
-
-This metadata are imported in `/lib/utils.ts` and used in `src/app/layout.tsx`.
-
-`MaxWidthWrapper.tsx` is a simple wrapper for the main content to take up full width on screen and can be reused in other components. It is imported in `src/app/page.tsx` by default.
-
-```authjs drizzle adapter + turso
+```bash
 pnpm add drizzle-orm @auth/drizzle-adapter @libsql/client
 pnpm add drizzle-kit --save-dev
 ```
@@ -165,7 +167,8 @@ export const verificationTokens = sqliteTable(
 )
 ```
 
-Create auth token with `turso cli`
+Make sure `turso cli` is installed (only available on macOS, Linux or WSL).
+Then a turso db auth token can be created with:
 
 ```bash
 turso db show <database-name>
@@ -181,18 +184,13 @@ pnpm add next-auth@beta @auth/core
 `src/app/api/auth/[...nextauth]/route.ts`
 
 ```ts
-import NextAuth from 'next-auth'
-import GoogleProvider from 'next-auth/providers/google'
-import { DrizzleAdapter } from '@auth/drizzle-adapter'
-import { db } from './schema'
+import { handlers } from '@/auth'
 
-export default NextAuth({
-  adapter: DrizzleAdapter(db),
-  providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    }),
-  ],
-})
+export const { GET, POST } = handlers
+```
+
+## Add a button
+
+```bash
+pnpm dlx shadcn-ui@latest add button
 ```

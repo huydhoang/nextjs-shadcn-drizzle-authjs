@@ -16,12 +16,10 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang='en' className='h-full'>
-      <body
-        className={cn('relative h-full font-sans antialiased', inter.className)}
-      >
-        <main className='relative flex min-h-screen flex-col'>
-          <div className='flex-1 flex-grow'>{children}</div>
+    <html lang='en'>
+      <body className={cn(inter.className, 'dark')}>
+        <main className='flex h-screen w-screen flex-col items-center justify-center'>
+          {children}
         </main>
       </body>
     </html>
